@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
 using Stubble.Core.Builders;
+using Stubble.Core.Settings;
 
 namespace Stubble.Extensions.JsonNet.Tests
 {
@@ -82,6 +83,25 @@ namespace Stubble.Extensions.JsonNet.Tests
             var obj = JsonConvert.DeserializeObject(json);
 
             var output = stubble.Render("{{foo.bar}}", obj);
+            Assert.NotNull(output);
+            Assert.Equal("foobar", output);
+        }
+
+        [Fact]
+        public void It_Handles_Dotted_Keys()
+        {
+            const string json = "{ \"foo.bar\": \"foobar\" }";
+
+            var stubble = new StubbleBuilder()
+                .Configure(settings => settings.AddJsonNet())
+                .Build();
+
+            var obj = JsonConvert.DeserializeObject(json);
+
+            var output = stubble.Render("{{foo.bar}}", obj, new RenderSettings
+            {
+                SkipDottedNameChildTraversal = true
+            });
             Assert.NotNull(output);
             Assert.Equal("foobar", output);
         }
